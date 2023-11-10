@@ -3,7 +3,6 @@ import {
   Input,
   CardBody,
   Stack,
-  FormLabel,
   Center,
   Flex,
   Card,
@@ -12,9 +11,37 @@ import {
   Heading,
   VStack,
 } from "@chakra-ui/react";
+import { useFormik } from "formik";
 import React from "react";
+import * as Yup from "yup";
+
+// Input chỉ string
+// Email (Local-part@Domain): valid = _ or . or - nhưng không ở đầu hoặc cuối, Local-part: 4-64 ký tự, đứng trước @, valid từ a-z,A-Z,chữ số 0-9 nhưng không được ở đầu
+// Password 1 ký tự in hoa, > 12 ký tự, 1 ký tự đặc biệt, 1 ký tự số
 
 const LoginForm = () => {
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+
+    validateSchema: Yup.object({
+      email: Yup.string("Invalid email!")
+        .matches(
+          "A[a-z0-9!#$%&'*+/=?^_‘{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_‘{|}~-]+)*@ (?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
+        )
+        .required("Please fill in this field!"),
+
+      password: Yup.string("Invalid email!")
+        .matches("^(?=.*d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^wds:])([^s]){8,16}$")
+        .required("Please fill in this field!"),
+    }),
+    onSubmit: (values) => {
+      console.log(values);
+    },
+  });
+
   return (
     <Flex
       width="100vw"
@@ -36,7 +63,7 @@ const LoginForm = () => {
           borderColor="none"
         >
           <CardBody>
-            <form>
+            <form onSubmit={formik.handleSubmit}>
               <Stack spacing="4">
                 <FormControl>
                   <VStack as="header" spacing="6" mt="8">
@@ -57,7 +84,12 @@ const LoginForm = () => {
                     size="lg"
                     borderRadius="6px"
                     placeholder="Email"
+                    defaultValue={formik.values.email}
+                    onChange={formik.handleChange}
                   />
+                  {formik.errors.email && (
+                    <p color="red">{formik.errors.email}</p>
+                  )}
                 </FormControl>
                 <FormControl>
                   <HStack justify="space-between">
@@ -80,7 +112,12 @@ const LoginForm = () => {
                     size="lg"
                     borderRadius="6px"
                     placeholder="Password"
+                    defaultValue={formik.values.password}
+                    onChange={formik.handleChange}
                   />
+                  {formik.errors.password && (
+                    <p color="red">{formik.errors.password}</p>
+                  )}
                 </FormControl>
 
                 <Button
@@ -93,15 +130,15 @@ const LoginForm = () => {
                   Login
                 </Button>
               </Stack>
+              <Center display="flex" justifyContent="space-between">
+                <Button colorScheme="facebook" size="lg" mt={4} w="200px">
+                  Facebook
+                </Button>
+                <Button colorScheme="red" size="lg" mt={4} w="200px">
+                  Google
+                </Button>
+              </Center>
             </form>
-            <Center display="flex" justifyContent="space-between">
-              <Button colorScheme="facebook" size="lg" mt={4} w="200px">
-                Facebook
-              </Button>
-              <Button colorScheme="red" size="lg" mt={4} w="200px">
-                Google
-              </Button>
-            </Center>
           </CardBody>
         </Card>
       </Center>
